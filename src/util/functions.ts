@@ -347,3 +347,20 @@ export function createCatalogLink(session: any) {
   const [wid] = session.split('@');
   return `https://wa.me/c/${wid}`;
 }
+
+export const sendMessageWithTyping = async (
+  req: Request,
+  { contato, message, options, randomTime = 0 }
+) => {
+  await req.client.startTyping(contato);
+
+  const randomVal = randomTime || Math.floor(Math.random() * (15 - 5)) + 5;
+  await new Promise((resolve) =>
+    setTimeout(() => resolve(true), randomVal * 1000)
+  );
+
+  const response = await req.client.sendText(contato, message, options);
+
+  await req.client.stopTyping(contato);
+  return response;
+};
