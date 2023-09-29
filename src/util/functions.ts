@@ -19,6 +19,7 @@ import {
   PutPublicAccessBlockCommand,
   S3Client,
 } from '@aws-sdk/client-s3';
+import { Whatsapp } from '@wppconnect-team/wppconnect';
 import api from 'axios';
 import Crypto from 'crypto';
 import { Request } from 'express';
@@ -348,11 +349,26 @@ export function createCatalogLink(session: any) {
   return `https://wa.me/c/${wid}`;
 }
 
+const tryType = async (
+  action: 'start' | 'stop',
+  client: Whatsapp,
+  contato: string
+) => {
+  try {
+    if (action === 'start') await client.startTyping(contato);
+    if (action === 'stop') await client.stopTyping(contato);
+    return true;
+  } catch (error) {
+    console.error(error);
+    return false;
+  }
+};
+
 export const sendMessageWithTyping = async (
   req: Request,
   { contato, message, options, randomTime = 0 }
 ) => {
-  await req.client.startTyping(contato);
+  await tryType('start', req.client, contato);
 
   const randomVal = randomTime || Math.floor(Math.random() * (15 - 5)) + 5;
   await new Promise((resolve) =>
@@ -361,6 +377,6 @@ export const sendMessageWithTyping = async (
 
   const response = await req.client.sendText(contato, message, options);
 
-  await req.client.stopTyping(contato);
+  await tryType('stop', req.client, contato);
   return response;
 };
