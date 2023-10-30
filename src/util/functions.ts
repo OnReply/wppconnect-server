@@ -375,6 +375,9 @@ export const sendMessageWithTyping = async (
     setTimeout(() => resolve(true), randomVal * 1000)
   );
 
+  if (message.match(/https?:\/\/[^\s/$.?#].[^\s]*/gi))
+    options.linkPreview = false;
+
   const response = await req.client.sendText(contato, message, options);
 
   await tryType('stop', req.client, contato);
